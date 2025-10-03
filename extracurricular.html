@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Extracurricular Activities</title>
+  <style>
+    :root{
+      --bg-a: #071029;
+      --bg-b: #0f1b2b;
+      --surface: rgba(255,255,255,0.04);
+      --muted: #bfc9d6;
+      --text: #e6eef8;
+    }
+
+    .light-theme{
+      --bg-a:#f7fbff;
+      --bg-b:#eef6ff;
+      --surface:rgba(2,6,23,0.04);
+      --muted:#556074;
+      --text:#0b1220;
+    }
+
+    body{min-height:100vh;margin:0;background: linear-gradient(180deg,var(--bg-a), var(--bg-b));color:var(--text);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+    .container{max-width:900px;margin:0 auto;padding:22px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .back{color:inherit;text-decoration:none;background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px}
+    .card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px;box-shadow:0 8px 26px rgba(2,6,23,0.6);}
+    .title{font-size:14px;color:var(--muted);margin-bottom:8px}
+    .activities{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .activity{display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);align-items:center}
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    function applySavedTheme(){
+      try{
+        const saved = localStorage.getItem('theme');
+        document.body.classList.toggle('light-theme', saved === 'light');
+      }catch(e){}
+    }
+    applySavedTheme();
+    window.addEventListener('pageshow', applySavedTheme);
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const y = new Date().getFullYear();
+      const el = document.getElementById('year');
+      if(el) el.textContent = y;
+    });
+  </script>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1 style="margin:0;font-size:20px">Extracurricular</h1>
+      <a class="back" href="dashboard2.html">← Back to Dashboard</a>
+    </div>
+
+    <div class="card">
+      <div class="title">Your Activities</div>
+      <div class="activities">
+        <div class="activity"><div>Basketball Team</div><div style="color:var(--muted)">Practice: Mon/Wed 4-6pm</div></div>
+        <div class="activity"><div>Robotics Club</div><div style="color:var(--muted)">Meeting: Tue 3-5pm</div></div>
+        <div class="activity"><div>Debate Team</div><div style="color:var(--muted)">Practice: Thu 3:30-5pm</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;color:var(--muted);font-size:13px">© <span id="year"></span> SchoolSystem</div>
+  </div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Attendance Dashboard</title>
+  <style>
+    :root{
+      --sidebar-w: 240px;
+
+      /* Professional Dark theme (default) */
+      --bg-a: #0a0e1a;
+      --bg-b: #141b2d;
+      --surface: rgba(255,255,255,0.05);
+      --muted: #94a3b8;
+      --card-shadow: rgba(0,0,0,0.4);
+      --accent-1: linear-gradient(135deg,#10b981 0%, #059669 100%);
+      --accent-2: linear-gradient(135deg,#3b82f6 0%, #1d4ed8 100%);
+      --accent-3: linear-gradient(135deg,#f59e0b 0%, #d97706 100%);
+      --accent-4: linear-gradient(135deg,#8b5cf6 0%, #7c3aed 100%);
+      --glass: rgba(255,255,255,0.04);
+      --text: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --border: rgba(255,255,255,0.08);
+      --hover: rgba(255,255,255,0.06);
+    }
+
+    /* Professional Light theme */
+    .light-theme{
+      --bg-a: #fefefe;
+      --bg-b: #f8fafc;
+      --surface: rgba(15,23,42,0.03);
+      --muted: #64748b;
+      --card-shadow: rgba(15,23,42,0.08);
+      --accent-1: linear-gradient(135deg,#059669 0%, #047857 100%);
+      --accent-2: linear-gradient(135deg,#2563eb 0%, #1d4ed8 100%);
+      --accent-3: linear-gradient(135deg,#d97706 0%, #b45309 100%);
+      --accent-4: linear-gradient(135deg,#7c3aed 0%, #6d28d9 100%);
+      --glass: rgba(15,23,42,0.02);
+      --text: #0f172a;
+      --text-secondary: #475569;
+      --border: rgba(15,23,42,0.08);
+      --hover: rgba(15,23,42,0.04);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+
+    html,body{height:100%}
+    body{
+      min-height:100vh;
+      height:100vh;
+      background: linear-gradient(180deg,var(--bg-a), var(--bg-b));
+      color:var(--text);
+      display:flex;
+      transition: background .35s ease, color .35s ease;
+      overflow:hidden;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      width:var(--sidebar-w);
+      min-width:var(--sidebar-w);
+      background: var(--bg-b);
+      padding:24px 20px;
+      border-right: 1px solid var(--border);
+      position:sticky;
+      top:0;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+
+    .brand{
+      font-weight:700;
+      letter-spacing:0.2px;
+      font-size:18px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+
+    .logo {
+      width:40px;height:40px;border-radius:12px;
+      background: var(--accent-2);
+      display:inline-block;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+    }
+
+    nav{margin-top:16px;flex:1;overflow:auto}
+    .nav-item{
+      display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:var(--muted);
+      text-decoration:none;cursor:pointer;
+      transition: all .2s ease;
+      user-select:none;
+      margin-bottom:4px;
+      font-weight:500;
+    }
+    .nav-item:hover{ 
+      background:var(--hover); 
+      color:var(--text); 
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .nav-item.active{ 
+      background: var(--accent-2); 
+      color: white; 
+      box-shadow: 0 4px 16px rgba(59,130,246,0.3);
+      transform: translateX(4px);
+    }
+
+    .nav-label{font-size:15px}
+
+    .sidebar .bottom {
+      margin-top:auto;
+      font-size:13px;color:var(--muted);
+    }
+
+    /* Main area */
+    .main {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+      overflow-y:auto;
+      overflow-x:hidden;
+    }
+
+    /* Topbar */
+    .topbar{
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 28px;
+      background: var(--bg-a);
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:40;
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .hamburger {
+      display:none;
+      width:44px;height:44px;border-radius:10px;background:var(--glass);border:none;color:var(--text);
+      align-items:center;justify-content:center;font-size:20px;cursor:pointer;
+    }
+
+    .topbar .search {
+      display:flex;align-items:center;gap:8px;
+      background:var(--glass);padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,0.02);
+      min-width:240px;max-width:420px;
+    }
+    .topbar .search input{
+      border:0;background:transparent;outline:none;color:var(--text);
+      width:100%;
+    }
+
+    .topbar-right{display:flex;align-items:center;gap:12px}
+
+    .icon-btn{
+      width:44px;height:44px;border-radius:12px;background:var(--glass);
+      display:flex;align-items:center;justify-content:center;border:0;
+      cursor:pointer;color:var(--text);transition:all 0.2s ease;
+      border:1px solid var(--border);
+    }
+    .icon-btn:hover{
+      background:var(--hover);transform:translateY(-2px);
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .avatar{
+      width:44px;height:44px;border-radius:50%;border:2px solid var(--border);
+      background:var(--accent-2);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;
+      font-weight:700;color:white;font-size:16px;
+      transition:all 0.2s ease;box-shadow:0 2px 8px rgba(59,130,246,0.3);
+    }
+    .avatar:hover{
+      transform:translateY(-2px);box-shadow:0 4px 16px rgba(59,130,246,0.4);
+    }
+
+    .theme-toggle{
+      width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,#111, #2b2b2b);
+      display:grid;place-items:center;border:0;cursor:pointer;color:#fff;font-size:14px;
+    }
+
+    .search-toggle{
+      display:none;width:44px;height:44px;border-radius:10px;background:var(--glass);
+      border:0;cursor:pointer;color:var(--text);align-items:center;justify-content:center;
+    }
+
+    .mobile-search-bar{
+      position:fixed;top:64px;left:0;right:0;background:var(--bg-b);
+      padding:12px;border-bottom:1px solid rgba(255,255,255,0.02);z-index:50;
+      display:none;
+    }
+
+    .mobile-search-bar input{
+      width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);
+      background:var(--glass);color:var(--text);outline:none;
+    }
+
+    .mobile-buttons{
+      margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);
+      display:flex;gap:8px;
+    }
+
+    .mobile-btn{
+      flex:1;padding:10px;border-radius:8px;background:var(--glass);
+      border:0;color:var(--text);cursor:pointer;font-size:13px;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+
+    /* Content wrapper:center and max width */
+    .content-wrapper{
+      width:100%;
+      max-width:1200px;
+      margin:24px auto;
+      padding:0 24px 40px;
+      flex:1;
+    }
+
+    .greeting{
+      display:flex;justify-content:space-between;align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .greeting h1{font-size:20px;margin-bottom:6px}
+    .greeting p{color:var(--muted);font-size:14px;margin-top:2px}
+
+    /* Cards (attendance etc) */
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap:18px;
+    }
+
+    .card{
+      background: var(--surface);
+      padding:24px;border-radius:16px;box-shadow:0 4px 20px var(--card-shadow);
+      transition:all .3s ease;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+    .card:hover{
+      transform:translateY(-8px);
+      box-shadow:0 12px 40px var(--card-shadow);
+      border-color: rgba(59,130,246,0.2);
+    }
+
+    .card .title{font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+    .card .big{font-size:28px;font-weight:800;color:var(--text);margin-bottom:8px}
+
+    /* Enhanced progress bar */
+    .prog-wrap{
+      margin-top:16px;background:var(--border);height:8px;border-radius:8px;overflow:hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .prog {
+      height:100%;border-radius:8px;width:80%;
+      transition: width 1s ease;
+      position:relative;
+    }
+    .prog::after{
+      content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    /* class timings */
+    .class-timings{
+      margin-top:20px;border-radius:16px;padding:24px;
+      background:var(--surface);border:1px solid var(--border);
+      box-shadow:0 4px 20px var(--card-shadow);
+    }
+    .class-timings h3{margin-bottom:16px;color:var(--text);font-weight:700}
+    .schedule{display:flex;flex-direction:column;gap:12px}
+    .slot{
+      display:flex;justify-content:space-between;padding:16px;border-radius:12px;
+      background:var(--hover);align-items:center;
+      transition:all 0.2s ease;border:1px solid var(--border);
+    }
+    .slot:hover{transform:translateX(4px);box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+    .slot .time{font-weight:700;color:var(--text)}
+    .slot .sub{color:var(--muted);font-size:14px;font-weight:500}
+
+    /* right column / two-column layout for cards+timings */
+    .grid-2col{
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:24px;
+      margin-top:20px;
+      align-items:start;
+    }
+
+    /* responsive */
+    @media (max-width:1200px){
+      .grid-2col{grid-template-columns: 1fr 320px;gap:20px}
+      .content-wrapper{max-width:100%;padding:0 20px 40px}
+    }
+    
+    @media (max-width:1100px){
+      .grid-2col{grid-template-columns: 1fr 300px}
+      .content-wrapper{max-width:100%;padding:0 16px 40px}
+    }
+
+    @media (max-width:880px){
+      .sidebar{display:none;position:fixed;left:0;top:0;z-index:60;height:100vh}
+      .hamburger{display:flex}
+      .topbar{background:var(--bg-b);border-bottom:1px solid rgba(255,255,255,0.08)}
+      .topbar .search{display:none}
+      .search-toggle{display:flex}
+      .mobile-buttons{display:none}
+      .grid-2col{grid-template-columns:1fr}
+      .class-timings{order:3}
+      .content-wrapper{max-width:100%;padding:0 12px 60px}
+      .cards{grid-template-columns:1fr 1fr;gap:12px}
+      .card{padding:14px}
+      .card .big{font-size:18px}
+    }
+    .light-theme .topbar{border-bottom:1px solid rgba(2,6,23,0.1)}
+
+    /* overlay sidebar when mobile opened */
+    .sidebar.mobile-open{
+      display:flex;position:fixed;left:0;top:0;z-index:100;height:100vh;transform:translateX(0);
+      width:260px;padding:24px;box-shadow: 6px 0 30px rgba(0,0,0,0.6);
+      animation: slideIn .18s ease;
+      background: var(--bg-b);
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .light-theme .sidebar.mobile-open{ border-right: 1px solid rgba(2,6,23,0.08); }
+    @keyframes slideIn { from {transform:translateX(-12px);opacity:0} to {transform:none;opacity:1} }
+
+    /* subtle animated gradient for "living" cards */
+    .live-gradient{
+      background: linear-gradient(120deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      position:relative; overflow:hidden;
+    }
+    .live-gradient::before{
+      content:"";position:absolute;inset:-40%;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      transform:rotate(25deg);opacity:0.4; animation: shimmer 6s linear infinite;
+    }
+    @keyframes shimmer{ from{transform:translateX(-60%) rotate(25deg)} to {transform:translateX(60%) rotate(25deg)} }
+
+    /* Extracurricular section */
+    .extracurricular-section {
+      background: var(--surface);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px var(--card-shadow);
+      margin-top: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .extracurricular-section h3 {
+      margin-bottom: 16px;
+      color: var(--text);
+      font-weight: 700;
+    }
+    
+    .activities {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .activity {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--hover);
+      align-items: center;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+    }
+    
+    .activity:hover {
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .activity .name {
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .activity .status {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* small utilities */
+    .muted{color:var(--muted)}
+    a{color:inherit}
+    button{background:none;border:0}
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="Main sidebar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">Krushna Saruk</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Student ID: 3292957</div>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-item active" data-section="insights">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 13h4v8H3zM8.5 3h4v18h-4zM17 8h4v13h-4z" fill="currentColor" opacity="0.9"/></svg>
+        <div class="nav-label">Attendance Insights</div>
+      </div>
+
+      <div class="nav-item" data-section="records">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 6h16v12H4z" fill="currentColor" opacity="0.9" /></svg>
+        <div class="nav-label">Records</div>
+      </div>
+
+      <div class="nav-item" data-section="location">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 2a7 7 0 017 7c0 5-7 13-7 13S5 14 5 9a7 7 0 017-7z" fill="currentColor" opacity="0.9"/></svg>
+        <div class="nav-label">Location</div>
+      </div>
+
+      <div class="nav-item" data-section="extracurricular">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor" opacity="0.9"/></svg>
+        <div class="nav-label">Extracurricular</div>
+      </div>
+
+      <div class="nav-item" data-section="reports">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M7 3h10v2H7zM7 7h10v2H7zM7 11h10v2H7z" fill="currentColor" opacity="0.9"/></svg>
+        <div class="nav-label">Reports</div>
+      </div>
+
+      <div class="nav-item" data-section="settings">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 8a4 4 0 100 8 4 4 0 000-8z" fill="currentColor" opacity="0.9"/></svg>
+        <div class="nav-label">Settings</div>
+      </div>
+
+      <div class="nav-item" data-section="moodle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z" fill="currentColor" opacity="0.9"/></svg>
+        <div class="nav-label">Moodle</div>
+      </div>
+    </nav>
+
+    <div class="mobile-buttons">
+      <button class="mobile-btn" id="mobileCalendarBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M7 11h10M3 7h18M7 3v4M17 3v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Calendar
+      </button>
+      <button class="mobile-btn" id="mobileNotifBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2H10a2 2 0 002 2zM18 16v-5a6 6 0 00-12 0v5l-2 2h16l-2-2z" fill="currentColor"/></svg>
+        Alerts
+      </button>
+    </div>
+
+    <div class="bottom muted">
+      © <span id="year"></span> SchoolSystem
+    </div>
+  </aside>
+
+  <!-- Mobile search bar -->
+  <div class="mobile-search-bar" id="mobileSearchBar">
+    <input id="mobileSearchInput" placeholder="Search sections, students..." />
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
+        <div style="display:flex;flex-direction:column;">
+          <div style="font-weight:700">Welcome Back</div>
+          <div style="font-size:12px;color:var(--muted)">Good to see you</div>
+        </div>
+      </div>
+
+      <div class="topbar-right" style="display:flex;align-items:center;gap:12px">
+        <div class="search" title="Search">
+          <svg width="16" height="16" viewBox="0 0 24 24" style="opacity:.8"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          <input id="searchInput" placeholder="Search sections, students..." aria-label="Search" />
+        </div>
+
+        <button class="search-toggle" id="searchToggle" title="Search" aria-label="Search">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </button>
+
+        <button class="icon-btn mobile-buttons" id="calendarBtn" title="Calendar" aria-label="Calendar">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M7 11h10M3 7h18M7 3v4M17 3v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        </button>
+
+        <button class="icon-btn mobile-buttons" id="notifBtn" title="Notifications" aria-label="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 22a2 2 0 002-2H10a2 2 0 002 2zM18 16v-5a6 6 0 00-12 0v5l-2 2h16l-2-2z" fill="currentColor"/></svg>
+        </button>
+
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+
+        <div style="position:relative">
+          <div class="avatar" id="avatarBtn" title="Account menu" aria-label="Account">KS</div>
+          <div id="profileMenu" style="display:none; position:absolute;right:0;top:48px; background:var(--surface); color:var(--text); padding:10px;border-radius:10px; min-width:160px; box-shadow:0 10px 30px rgba(0,0,0,0.3)">
+            <div style="font-weight:700;margin-bottom:6px">Krushna Saruk</div>
+            <div class="muted" style="font-size:13px;margin-bottom:8px">krushnasaruk55@gmail.com</div>
+            <hr style="border:0;height:1px;background:rgba(255,255,255,0.02);margin:6px 0"/>
+            <div style="font-size:14px;cursor:pointer" id="logoutBtn">Logout</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- content wrapper-->
+    <main class="content-wrapper">
+      <div class="greeting">
+        <div>
+          <h1>Attendance Dashboard</h1>
+          <p class="muted">Overview of your attendance, tasks and today's classes</p>
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="grid-2col">
+        <div>
+          <div class="cards">
+            <div class="card">
+              <div class="title">Attendance</div>
+              <div class="big">90% Present</div>
+              <div class="prog-wrap"><div class="prog" style="width:90%;background:var(--accent-1)"></div></div>
+            </div>
+
+            <div class="card">
+              <div class="title">Tasks Completed</div>
+              <div class="big">72%</div>
+              <div class="prog-wrap"><div class="prog" style="width:72%;background:var(--accent-2)"></div></div>
+            </div>
+
+            <div class="card">
+              <div class="title">Work Left</div>
+              <div class="big">28%</div>
+              <div class="prog-wrap"><div class="prog" style="width:28%;background:var(--accent-3)"></div></div>
+            </div>
+            
+            <!-- New extracurricular div -->
+            <div class="card">
+              <div class="title">Extracurricular</div>
+              <div class="big">3 Activities</div>
+              <div class="prog-wrap"><div class="prog" style="width:60%;background:var(--accent-4)"></div></div>
+            </div>
+          </div>
+
+          <!-- smaller metrics row -->
+          <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap">
+            <div class="card" style="flex:1;min-width:140px">
+              <div class="title">Excused Absence</div>
+              <div class="big">1%</div>
+            </div>
+            <div class="card" style="flex:1;min-width:140px">
+              <div class="title">Unexcused</div>
+              <div class="big">0.5%</div>
+            </div>
+          </div>
+
+          <!-- class timings -->
+          <div class="class-timings">
+            <h3>Today's Class Timings</h3>
+            <div class="schedule">
+              <div class="slot"><div class="time">09:00 - 10:00</div><div class="sub">Mathematics</div></div>
+              <div class="slot"><div class="time">10:15 - 11:15</div><div class="sub">Physics</div></div>
+              <div class="slot"><div class="time">11:30 - 12:30</div><div class="sub">Chemistry</div></div>
+              <div class="slot"><div class="time">14:00 - 15:00</div><div class="sub">Computer Science</div></div>
+            </div>
+          </div>
+
+          <!-- Extracurricular section -->
+          <div class="extracurricular-section">
+            <h3>Extracurricular Activities</h3>
+            <div class="activities">
+              <div class="activity">
+                <div class="name">Basketball Team</div>
+                <div class="status">Practice: Mon/Wed 4-6pm</div>
+              </div>
+              <div class="activity">
+                <div class="name">Robotics Club</div>
+                <div class="status">Meeting: Tue 3-5pm</div>
+              </div>
+              <div class="activity">
+                <div class="name">Debate Team</div>
+                <div class="status">Practice: Thu 3:30-5pm</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- right column -->
+        <aside>
+          <div class="card" style="margin-bottom:20px">
+            <div class="title">Attendance Metrics</div>
+            <div style="display:flex;gap:16px;align-items:center;margin-top:16px">
+              <div style="flex:1;text-align:center;padding:16px;background:var(--hover);border-radius:12px">
+                <div style="font-size:24px;font-weight:800;color:var(--text)">98.5%</div>
+                <div style="color:var(--muted);font-size:12px;margin-top:4px">Attendance Rate</div>
+              </div>
+              <div style="flex:1;text-align:center;padding:16px;background:var(--hover);border-radius:12px">
+                <div style="font-size:24px;font-weight:800;color:var(--text)">0%</div>
+                <div style="color:var(--muted);font-size:12px;margin-top:4px">Tardiness</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="title">Student Details</div>
+            <div style="margin-top:12px" class="muted">House</div>
+            <div style="margin-bottom:8px">No House</div>
+
+            <div class="muted">Student Ref</div>
+            <div style="margin-bottom:8px">3292957</div>
+
+            <div class="muted">Year Level</div>
+            <div>9</div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // small helpers
+    // Theme helpers
+    function applySavedTheme(){
+      try{
+        const saved = localStorage.getItem('theme');
+        const shouldBeLight = saved === 'light';
+        document.body.classList.toggle('light-theme', shouldBeLight);
+      }catch(e){}
+    }
+    // Apply on load and on page restore (bfcache)
+    applySavedTheme();
+    window.addEventListener('pageshow', applySavedTheme);
+
+    document.getElementById('year').innerText = new Date().getFullYear();
+
+    // mobile sidebar toggle
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    let mobileOpen = false;
+    hamburger?.addEventListener('click', ()=>{
+      mobileOpen = !mobileOpen;
+      if(window.innerWidth <= 880){
+        sidebar.classList.toggle('mobile-open', mobileOpen);
+        // add backdrop
+        if(mobileOpen){
+          const back = document.createElement('div');
+          back.id = 'mobile-backdrop';
+          back.style = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:90';
+          back.addEventListener('click', ()=>{ mobileOpen=false; sidebar.classList.remove('mobile-open'); back.remove();});
+          document.body.appendChild(back);
+        } else {
+          const existing = document.getElementById('mobile-backdrop'); if(existing) existing.remove();
+        }
+      }
+    });
+
+    // profile dropdown
+    const avatarBtn = document.getElementById('avatarBtn');
+    const profileMenu = document.getElementById('profileMenu');
+    avatarBtn?.addEventListener('click', (e)=>{
+      profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+    });
+    window.addEventListener('click', (e)=>{
+      if(!avatarBtn.contains(e.target) && !profileMenu.contains(e.target)){
+        profileMenu.style.display = 'none';
+      }
+    });
+
+    // logout -> go to login.html
+    document.getElementById('logoutBtn')?.addEventListener('click', ()=>{
+      window.location.href = 'login.html';
+    });
+
+    // theme toggle (persist to localStorage)
+    const themeBtn = document.getElementById('themeToggle');
+    themeBtn?.addEventListener('click', ()=>{
+      document.body.classList.toggle('light-theme');
+      try{
+        const isLight = document.body.classList.contains('light-theme');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      }catch(e){}
+    });
+
+    // nav items selection (client-side)
+    document.querySelectorAll('.nav-item').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        const section = item.getAttribute('data-section');
+        // Navigate to section pages
+        if(section === 'extracurricular'){
+          window.location.href = 'extracurricular.html';
+          return;
+        }
+        if(section === 'records'){
+          window.location.href = 'records.html';
+          return;
+        }
+        if(section === 'location'){
+          window.location.href = 'location.html';
+          return;
+        }
+        if(section === 'reports'){
+          window.location.href = 'reports.html';
+          return;
+        }
+        if(section === 'settings'){
+          window.location.href = 'settings.html';
+          return;
+        }
+        if(section === 'moodle'){
+          window.open('https://dpesmoodle.com/dpcoe/', '_blank');
+          return;
+        }
+        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+
+    // search toggle for mobile
+    const searchToggle = document.getElementById('searchToggle');
+    const mobileSearchBar = document.getElementById('mobileSearchBar');
+    let searchOpen = false;
+    searchToggle?.addEventListener('click', ()=>{
+      searchOpen = !searchOpen;
+      mobileSearchBar.style.display = searchOpen ? 'block' : 'none';
+      if(searchOpen){
+        document.getElementById('mobileSearchInput').focus();
+      }
+    });
+
+    // close mobile search when clicking outside
+    document.addEventListener('click', (e)=>{
+      if(!searchToggle?.contains(e.target) && !mobileSearchBar?.contains(e.target)){
+        searchOpen = false;
+        mobileSearchBar.style.display = 'none';
+      }
+    });
+
+    // mobile button handlers
+    document.getElementById('mobileCalendarBtn')?.addEventListener('click', ()=> alert('Open calendar (placeholder)'));
+    document.getElementById('mobileNotifBtn')?.addEventListener('click', ()=> alert('No new notifications'));
+
+    // desktop button handlers
+    document.getElementById('notifBtn')?.addEventListener('click', ()=> alert('No new notifications'));
+    document.getElementById('calendarBtn')?.addEventListener('click', ()=> alert('Open calendar (placeholder)'));
+  </script>
+</body>
+</html>
